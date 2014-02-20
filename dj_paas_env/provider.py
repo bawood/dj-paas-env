@@ -9,10 +9,8 @@ def detect(env=os.environ):
     """
     >>> detect({'DYNO':None})
     'heroku'
-
     >>> detect({'OPENSHIFT_xxx':None})
     'openshift'
-
     >>> detect({'xxx':None})
     'unknown'
     """

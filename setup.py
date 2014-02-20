@@ -10,5 +10,5 @@ setup(
     author='Germán Moya',
     author_email='',
     description='',
-    #test_suite='dj_paas_env.test.suite'
+    test_suite='dj_paas_env.test.suite'
 )
