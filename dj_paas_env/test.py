@@ -1,7 +1,8 @@
-import doctest
-from dj_paas_env import provider
+from doctest import DocTestSuite
+from dj_paas_env import provider, database
 
-suite = doctest.DocTestSuite(provider)
+suite = DocTestSuite(provider)
+suite.addTests(DocTestSuite(database))
 
 def load_tests(loader, tests, ignore):
     tests.addTests(suite)
