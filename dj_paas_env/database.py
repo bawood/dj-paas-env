@@ -26,7 +26,7 @@ def parse(url):
     url = urlparse(url)
     return {
         'ENGINE': ENGINES[url.scheme],
-        'NAME': url.path[1:],
+        'NAME': url.path[1:].split('?', 2)[0],
         'USERNAME': url.username or '',
         'PASSWORD': url.password or '',
         'HOST': url.hostname,
