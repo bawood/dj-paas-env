@@ -1,22 +1,28 @@
 import os
 from urlparse import urlparse
-
-def config(env=os.environ):
-    if 'DATABASE_URL' in env:
-        return parse(env[''DATABASE_URL''])
+import re
 
 ENGINES = {
     'postgres': 'django.db.backends.postgresql_psycopg2',
-    'postgresql': 'django.db.backends.postgresql_psycopg2'
+    'postgresql': 'django.db.backends.postgresql_psycopg2',
+    'mysql': 'django.db.backends.mysql',
 }
 
+
+def config(env=os.environ):
+    fixed_keys = ('DATABASE_URL', 'OPENSHIFT_POSTGRESQL_DB_URL',
+                  'OPENSHIFT_MYSQL_DB_URL', 'CLEARDB_DATABASE_URL')
+    re_keys = (r'HEROKU_POSTGRESQL_.+_URL', )
+    for fixed_key in fixed_keys:
+        if fixed_key in env:
+            return parse(env[fixed_key])
+    for key in env:
+        for re_key in re_keys:
+            if re.match(re_key, key):
+                return parse(env[key])
+
+
 def parse(url):
-    """
-    >>> parse('postgresql://ad_mingpxxnxy:ca5Dp1_yFet3@127.11.207.130:5432')
-    {'ENGINE': 'django.db.backends.postgresql_psycopg2', 'USERNAME': 'ad_mingpxxnxy', 'NAME': '', 'HOST': '127.11.207.130', 'PASSWORD': 'ca5Dp1_yFet3', 'PORT': 5432}
-    >>> parse('postgres://hleulxsesqdumt:vULaPXW9n4eGKK64d2_ujxLqGG@ec2-107-20-214-225.compute-1.amazonaws.com:5432/dcj1n178peejs9')
-    {'ENGINE': 'django.db.backends.postgresql_psycopg2', 'USERNAME': 'hleulxsesqdumt', 'NAME': 'dcj1n178peejs9', 'HOST': 'ec2-107-20-214-225.compute-1.amazonaws.com', 'PASSWORD': 'vULaPXW9n4eGKK64d2_ujxLqGG', 'PORT': 5432}
-    """
     url = urlparse(url)
     return {
         'ENGINE': ENGINES[url.scheme],
@@ -24,5 +30,5 @@ def parse(url):
         'USERNAME': url.username or '',
         'PASSWORD': url.password or '',
         'HOST': url.hostname,
-        'PORT': url.port
+        'PORT': url.port or ''
     }
