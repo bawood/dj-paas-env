@@ -6,7 +6,8 @@ import os
 class TestDatabaseParse(unittest.TestCase):
 
     def test_parse_postgres_heroku(self):
-        url = 'postgres://hleulxsesqdumt:vULaPXW9n4eGKK64d2_ujxLqGG@ec2-107-20-214-225.compute-1.amazonaws.com:5432/dcj1n178peejs9'
+        url = 'postgres://hleulxsesqdumt:vULaPXW9n4eGKK64d2_ujxLqGG@' + \
+              'ec2-107-20-214-225.compute-1.amazonaws.com:5432/dcj1n178peejs9'
         parsed = database.parse(url)
         parsed_expect = {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -135,6 +136,13 @@ class TestProviderDetect(unittest.TestCase):
     def test_detect_use_environ(self):
         os.environ['DYNO'] = ''
         self.assertEqual(provider.detect(), provider.HEROKU)
+
+
+def suite():
+    test_suite = unittest.TestSuite()
+    tests = unittest.defaultTestLoader.loadTestsFromName(__name__)
+    test_suite.addTests(tests)
+    return test_suite
 
 if __name__ == '__main__':
     unittest.main()
