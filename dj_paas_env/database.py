@@ -1,6 +1,11 @@
 import os
-from urlparse import urlparse
 import re
+
+try:
+    from urllib.parse import urlparse  # Python 3
+except ImportError:
+    from urlparse import urlparse  # Python 2
+
 
 ENGINES = {
     'postgres': 'django.db.backends.postgresql_psycopg2',
