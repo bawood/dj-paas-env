@@ -1,6 +1,5 @@
 # coding=utf-8
 from setuptools import setup
-from sys import version_info
 
 setup(
     name='dj-paas-env',

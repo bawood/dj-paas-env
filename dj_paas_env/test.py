@@ -4,7 +4,7 @@ import os
 
 
 class TestDatabaseParse(unittest.TestCase):
-
+    
     def test_parse_postgres_heroku(self):
         url = 'postgres://hleulxsesqdumt:vULaPXW9n4eGKK64d2_ujxLqGG@' + \
               'ec2-107-20-214-225.compute-1.amazonaws.com:5432/dcj1n178peejs9'
@@ -68,7 +68,6 @@ class TestDatabaseParse(unittest.TestCase):
             'HOST': 'host',
             'PORT': 123
         })
-
 
 
 class TestDatabaseConfig(unittest.TestCase):
