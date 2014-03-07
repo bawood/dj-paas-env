@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='dj-paas-env',
     description='Helper methods to configure Django database and static files in a PAAS environment.',
-    version='0.1b1',
+    version='0.1b',
     packages=['dj_paas_env'],
     url='https://github.com/pbacterio/dj-paas-env',
     license='MIT',
@@ -12,7 +12,7 @@ setup(
     author_email='pbacterio@gmail.com',
     test_suite='dj_paas_env.test.suite',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
