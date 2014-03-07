@@ -57,12 +57,38 @@ class TestDatabaseParse(unittest.TestCase):
             'PORT': 3306
         })
 
+    def test_engine(self):
+        url = 'scheme://user:pass@host:123/name'
+        parsed = database.parse(url, engine='X')
+        self.assertDictEqual(parsed, {
+            'ENGINE': 'X',
+            'NAME': 'name',
+            'USERNAME': 'user',
+            'PASSWORD': 'pass',
+            'HOST': 'host',
+            'PORT': 123
+        })
+
+
 
 class TestDatabaseConfig(unittest.TestCase):
 
+    def setUp(self):
+        self.deleted_env = {}
+        for re_key in database.re_keys:
+            for key in os.environ:
+                if re_key.match(key):
+                    self.deleted_env[key] = os.environ[key]
+        for key in self.deleted_env:
+            del os.environ[key]
+
+    def tearDown(self):
+        os.environ.update(self.deleted_env)
+        self.deleted_env = None
+
     def test_config_heroku_promoted(self):
-        env = {'DATABASE_URL': 'postgres://asdf:fdsa@qwer:12345/rewq'}
-        conf = database.config(env)
+        os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
@@ -73,8 +99,8 @@ class TestDatabaseConfig(unittest.TestCase):
         })
 
     def test_config_heroku_postgres(self):
-        env = {'HEROKU_POSTGRESQL_BLACK_URL': 'postgres://asdf:fdsa@qwer:12345/rewq'}
-        conf = database.config(env)
+        os.environ['HEROKU_POSTGRESQL_BLACK_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
@@ -85,8 +111,8 @@ class TestDatabaseConfig(unittest.TestCase):
         })
 
     def test_config_heroku_mysql(self):
-        env = {'CLEARDB_DATABASE_URL': 'mysql://asdf:fdsa@qwer:12345/rewq'}
-        conf = database.config(env)
+        os.environ['CLEARDB_DATABASE_URL'] = 'mysql://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'rewq',
@@ -97,8 +123,8 @@ class TestDatabaseConfig(unittest.TestCase):
         })
 
     def test_config_openshift_postgres(self):
-        env = {'OPENSHIFT_POSTGRESQL_DB_URL': 'postgresql://asdf:fdsa@qwer:12345/rewq'}
-        conf = database.config(env)
+        os.environ['OPENSHIFT_POSTGRESQL_DB_URL'] = 'postgresql://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
@@ -109,8 +135,8 @@ class TestDatabaseConfig(unittest.TestCase):
         })
 
     def test_config_openshift_mysql(self):
-        env = {'OPENSHIFT_MYSQL_DB_URL': 'mysql://asdf:fdsa@qwer:12345/rewq'}
-        conf = database.config(env)
+        os.environ['OPENSHIFT_MYSQL_DB_URL'] = 'mysql://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'rewq',

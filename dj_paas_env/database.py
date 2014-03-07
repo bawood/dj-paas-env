@@ -1,3 +1,5 @@
+__all__ = ('config', 'parse', 'ENGINES')
+
 import os
 import re
 
@@ -13,24 +15,22 @@ ENGINES = {
     'mysql': 'django.db.backends.mysql',
 }
 
-
-def config(env=os.environ):
-    fixed_keys = ('DATABASE_URL', 'OPENSHIFT_POSTGRESQL_DB_URL',
-                  'OPENSHIFT_MYSQL_DB_URL', 'CLEARDB_DATABASE_URL')
-    re_keys = (r'HEROKU_POSTGRESQL_.+_URL', )
-    for fixed_key in fixed_keys:
-        if fixed_key in env:
-            return parse(env[fixed_key])
-    for key in env:
-        for re_key in re_keys:
-            if re.match(re_key, key):
-                return parse(env[key])
+re_keys = map(re.compile, [r'.*DATABASE_URL', r'HEROKU_POSTGRESQL_.+_URL',
+                           r'OPENSHIFT_.+_DB_URL',])
 
 
-def parse(url):
+def config(default=None, engine=None):
+    for re_key in re_keys:
+        for key in os.environ:
+            if re_key.match(key):
+                return parse(os.environ[key], engine)
+    return parse(default, engine)
+
+
+def parse(url, engine=None):
     url = urlparse(url)
     return {
-        'ENGINE': ENGINES[url.scheme],
+        'ENGINE': engine if engine else ENGINES[url.scheme],
         'NAME': url.path[1:].split('?', 2)[0],
         'USERNAME': url.username or '',
         'PASSWORD': url.password or '',
