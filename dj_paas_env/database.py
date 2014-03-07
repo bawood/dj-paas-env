@@ -13,6 +13,7 @@ ENGINES = {
     'postgres': 'django.db.backends.postgresql_psycopg2',
     'postgresql': 'django.db.backends.postgresql_psycopg2',
     'mysql': 'django.db.backends.mysql',
+    'sqlite': 'django.db.backends.sqlite3',
 }
 
 re_keys = [r'.*DATABASE_URL', r'HEROKU_POSTGRESQL_.+_URL',
@@ -29,6 +30,11 @@ def config(default=None, engine=None):
 
 
 def parse(url, engine=None):
+    if url in ('sqlite://:memory:', 'sqlite://'):
+        return {
+            'ENGINE': ENGINES['sqlite'],
+            'NAME': ':memory:'
+        }
     url = urlparse(url)
     return {
         'ENGINE': engine if engine else ENGINES[url.scheme],
