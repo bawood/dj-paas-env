@@ -15,8 +15,9 @@ ENGINES = {
     'mysql': 'django.db.backends.mysql',
 }
 
-re_keys = map(re.compile, [r'.*DATABASE_URL', r'HEROKU_POSTGRESQL_.+_URL',
-                           r'OPENSHIFT_.+_DB_URL',])
+re_keys = [r'.*DATABASE_URL', r'HEROKU_POSTGRESQL_.+_URL',
+           r'OPENSHIFT_.+_DB_URL']
+re_keys = list(map(re.compile, re_keys))
 
 
 def config(default=None, engine=None):
