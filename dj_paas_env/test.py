@@ -1,10 +1,15 @@
 import unittest
-from dj_paas_env import database, provider
 import os
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
+from dj_paas_env import database, provider
 
 
 class TestDatabaseParse(unittest.TestCase):
-    
+
     def test_parse_postgres_heroku(self):
         url = 'postgres://hleulxsesqdumt:vULaPXW9n4eGKK64d2_ujxLqGG@' + \
               'ec2-107-20-214-225.compute-1.amazonaws.com:5432/dcj1n178peejs9'
@@ -67,6 +72,32 @@ class TestDatabaseParse(unittest.TestCase):
             'PASSWORD': 'pass',
             'HOST': 'host',
             'PORT': 123
+        })
+
+    def test_parse_sqlite(self):
+        url = 'sqlite:///directory/file.db'
+        parsed = database.parse(url)
+        self.assertDictEqual(parsed, {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'directory/file.db',
+            'USERNAME': '',
+            'PASSWORD': '',
+            'HOST': None,
+            'PORT': '',
+        })
+
+    def test_parse_sqlite_in_memory(self):
+        url = 'sqlite://:memory:'
+        parsed = database.parse(url)
+        self.assertDictEqual(parsed, {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        })
+        url = 'sqlite://'
+        parsed = database.parse(url)
+        self.assertDictEqual(parsed, {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
         })
 
 
@@ -144,6 +175,17 @@ class TestDatabaseConfig(unittest.TestCase):
             'HOST': 'qwer',
             'PORT': 12345
         })
+
+    @patch('dj_paas_env.database.parse')
+    def test_config_default(self, mocked):
+        conf = database.config(default='bbbb')
+        mocked.assert_called_with('bbbb', None)
+
+    @patch('dj_paas_env.database.parse')
+    def test_config_engine(self, mocked):
+        os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config(engine='xxxx')
+        mocked.assert_called_with('postgres://asdf:fdsa@qwer:12345/rewq', 'xxxx')
 
 
 class TestProviderDetect(unittest.TestCase):
