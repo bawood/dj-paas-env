@@ -178,13 +178,13 @@ class TestDatabaseConfig(unittest.TestCase):
 
     @patch('dj_paas_env.database.parse')
     def test_config_default(self, mocked):
-        conf = database.config(default='bbbb')
+        database.config(default='bbbb')
         mocked.assert_called_with('bbbb', None)
 
     @patch('dj_paas_env.database.parse')
     def test_config_engine(self, mocked):
         os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
-        conf = database.config(engine='xxxx')
+        database.config(engine='xxxx')
         mocked.assert_called_with('postgres://asdf:fdsa@qwer:12345/rewq', 'xxxx')
 
 
