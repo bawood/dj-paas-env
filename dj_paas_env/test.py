@@ -1,5 +1,11 @@
-import unittest
 import os
+import sys
+
+if sys.hexversion < 0x2070000:
+    import unittest2 as unittest
+else:
+    import unittest
+
 try:
     from unittest.mock import patch
 except ImportError:
