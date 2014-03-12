@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 
 if sys.hexversion < 0x2070000:
     import unittest2 as unittest
@@ -40,6 +41,19 @@ class TestDatabaseParse(unittest.TestCase):
             'PASSWORD': 'ca5Dp1_yFet3',
             'HOST': '127.11.207.130',
             'PORT': 5432
+        }
+        self.assertDictEqual(parsed, parsed_expect)
+
+    def test_parse_postgres_dotcloud(self):
+        url = 'pgsql://root:cR4zYr0o7pa5Sw0rD@abcd1234.dotcloud.com:1337'
+        parsed = database.parse(url)
+        parsed_expect = {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': '',
+            'USERNAME': 'root',
+            'PASSWORD': 'cR4zYr0o7pa5Sw0rD',
+            'HOST': 'abcd1234.dotcloud.com',
+            'PORT': 1337
         }
         self.assertDictEqual(parsed, parsed_expect)
 
@@ -107,20 +121,30 @@ class TestDatabaseParse(unittest.TestCase):
         })
 
 
-class TestDatabaseConfig(unittest.TestCase):
+class SafeEnvironmentTestCase(unittest.TestCase):
+
+    clean_vars = []
 
     def setUp(self):
-        self.deleted_env = {}
-        for re_key in database.re_keys:
-            for key in os.environ:
-                if re_key.match(key):
-                    self.deleted_env[key] = os.environ[key]
-        for key in self.deleted_env:
-            del os.environ[key]
+        self.env_copy = os.environ.copy()
+        for clean_var in self.clean_vars:
+            if isinstance(clean_var, str):
+                if clean_var in self.env_copy:
+                    os.environ.pod(clean_var, None)
+                break
+            for key in self.env_copy:
+                if clean_var.match(key):
+                    os.environ.pop(key, None)
 
     def tearDown(self):
-        os.environ.update(self.deleted_env)
-        self.deleted_env = None
+        os.environ.clear()
+        os.environ.update(self.env_copy)
+        self.env_copy = None
+
+
+class TestDatabaseConfig(SafeEnvironmentTestCase):
+
+    clean_vars = database.re_keys
 
     def test_config_heroku_promoted(self):
         os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
@@ -182,33 +206,53 @@ class TestDatabaseConfig(unittest.TestCase):
             'PORT': 12345
         })
 
-    @patch('dj_paas_env.database.parse')
-    def test_config_default(self, mocked):
-        database.config(default='bbbb')
-        mocked.assert_called_with('bbbb', None)
+    def test_config_gondor(self):
+        os.environ['GONDOR_DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
+        conf = database.config()
+        self.assertDictEqual(conf, {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'rewq',
+            'USERNAME': 'asdf',
+            'PASSWORD': 'fdsa',
+            'HOST': 'qwer',
+            'PORT': 12345
+        })
 
     @patch('dj_paas_env.database.parse')
-    def test_config_engine(self, mocked):
+    def test_config_default(self, mock):
+        database.config(default='bbbb')
+        mock.assert_called_with('bbbb', None)
+
+    @patch('dj_paas_env.database.parse')
+    def test_config_engine(self, mock):
         os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
         database.config(engine='xxxx')
-        mocked.assert_called_with('postgres://asdf:fdsa@qwer:12345/rewq', 'xxxx')
+        mock.assert_called_with('postgres://asdf:fdsa@qwer:12345/rewq', 'xxxx')
 
 
-class TestProviderDetect(unittest.TestCase):
+class TestProviderDetect(SafeEnvironmentTestCase):
+
+    clean_vars = ['DYNO', re.compile(r'OPENSHIFT_.+')]
 
     def test_detect_heroku(self):
-        self.assertEqual(provider.detect({'DYNO': None}), provider.HEROKU)
+        os.environ['DYNO'] = ''
+        self.assertEqual(provider.detect(), 'heroku')
 
     def test_detect_openshift(self):
-        self.assertEqual(provider.detect({'OPENSHIFT_xxx': None}),
-                         provider.OPENSHIFT)
+        os.environ['OPENSHIFT_xxx'] = ''
+        self.assertEqual(provider.detect(), 'openshift')
+
+    @patch('os.path.isfile', return_value=True)
+    def test_detect_dotcloud(self, mock):
+        self.assertEqual(provider.detect(), 'dotcloud')
+        mock.assert_called_with('/home/dotcloud/environment.json')
+
+    def test_detect_gondor(self):
+        os.environ['GONDOR_xxx'] = ''
+        self.assertEqual(provider.detect(), 'gondor')
 
     def test_detect_unknown(self):
-        self.assertEqual(provider.detect({'xxx': None}), provider.UNKNOWN)
-
-    def test_detect_use_environ(self):
-        os.environ['DYNO'] = ''
-        self.assertEqual(provider.detect(), provider.HEROKU)
+        self.assertEqual(provider.detect(), 'unknown')
 
 
 def suite():
