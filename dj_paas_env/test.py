@@ -123,7 +123,7 @@ class TestDatabaseParse(unittest.TestCase):
 
 class SafeEnvironmentTestCase(unittest.TestCase):
 
-    clean_vars = []
+    clean_vars = database.re_keys + ['DYNO', re.compile(r'OPENSHIFT_.+'), re.compile(r'GONDOR_.+')]
 
     def setUp(self):
         self.env_copy = os.environ.copy()
@@ -143,8 +143,6 @@ class SafeEnvironmentTestCase(unittest.TestCase):
 
 
 class TestDatabaseConfig(SafeEnvironmentTestCase):
-
-    clean_vars = database.re_keys
 
     def test_config_heroku_promoted(self):
         os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
@@ -228,6 +226,21 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         os.environ['DATABASE_URL'] = 'postgres://asdf:fdsa@qwer:12345/rewq'
         database.config(engine='xxxx')
         mock.assert_called_with('postgres://asdf:fdsa@qwer:12345/rewq', 'xxxx')
+
+
+class TestDatabaseDatadir(SafeEnvironmentTestCase):
+
+    def test_datadir_openshift(self):
+        os.environ['OPENSHIFT_DATA_DIR'] = 'qwerty'
+        self.assertEqual(database.get_data_dir(), 'qwerty')
+
+    def test_datadir_gondor(self):
+        os.environ['GONDOR_DATA_DIR'] = 'asdf'
+        self.assertEqual(database.get_data_dir(), 'asdf')
+
+    @patch('os.path.isfile', return_value=True)
+    def test_datadir_dotcloud(self, mock):
+        self.assertEqual(database.get_data_dir(), os.path.expanduser('~/data'))
 
 
 class TestProviderDetect(SafeEnvironmentTestCase):

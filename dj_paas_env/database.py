@@ -1,4 +1,4 @@
-__all__ = ('config', 'parse', 'ENGINES')
+__all__ = ('config', 'parse', 'ENGINES', 'get_data_dir')
 
 import os
 import re
@@ -50,3 +50,16 @@ def parse(url, engine=None):
         'HOST': url.hostname,
         'PORT': url.port or ''
     }
+
+def get_data_dir(default='.'):
+    """
+    Return persistent data directory or ``default`` if not found
+    Warning: Do not use this directory to store sqlite databases in producction
+    """
+    if 'OPENSHIFT_DATA_DIR' in os.environ:
+        return os.environ['OPENSHIFT_DATA_DIR']
+    if 'GONDOR_DATA_DIR' in os.environ:
+        return os.environ['GONDOR_DATA_DIR']
+    if provider.detect() == provider.DOTCLOUD:
+        return os.path.expanduser('~/data')
+    return default
