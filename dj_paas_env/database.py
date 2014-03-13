@@ -56,7 +56,7 @@ def sqlite_dev():
     return 'sqlite:///' + os.path.join(data_dir(), 'database.sqlite3')
 
 
-def data_dir(default='.'):
+def data_dir(default='data'):
     """
     Return persistent data directory or ``default`` if not found
     Warning: Do not use this directory to store sqlite databases in producction
