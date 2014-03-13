@@ -228,19 +228,40 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         mock.assert_called_with('postgres://asdf:fdsa@qwer:12345/rewq', 'xxxx')
 
 
+class TestDatabaseSqlitedev(SafeEnvironmentTestCase):
+
+    def test_sqlitedev_openshift(self):
+        os.environ['OPENSHIFT_DATA_DIR'] = 'qwerty'
+        self.assertEqual(database.sqlite_dev(), 'sqlite:///' + os.path.join(
+            'qwerty', 'database.sqlite3'))
+
+    def test_sqlitedev_gondor(self):
+        os.environ['GONDOR_DATA_DIR'] = 'asdf'
+        self.assertEqual(database.sqlite_dev(), 'sqlite:///' + os.path.join(
+            'asdf', 'database.sqlite3'))
+
+    @patch('os.path.isfile', return_value=True)
+    def test_sqlitedev_dotcloud(self, mock):
+        self.assertEqual(database.sqlite_dev(), 'sqlite:///' + os.path.join(
+            os.path.expanduser('~/data'), 'database.sqlite3'))
+
+
 class TestDatabaseDatadir(SafeEnvironmentTestCase):
 
     def test_datadir_openshift(self):
         os.environ['OPENSHIFT_DATA_DIR'] = 'qwerty'
-        self.assertEqual(database.get_data_dir(), 'qwerty')
+        self.assertEqual(database.data_dir(), 'qwerty')
 
     def test_datadir_gondor(self):
         os.environ['GONDOR_DATA_DIR'] = 'asdf'
-        self.assertEqual(database.get_data_dir(), 'asdf')
+        self.assertEqual(database.data_dir(), 'asdf')
 
     @patch('os.path.isfile', return_value=True)
     def test_datadir_dotcloud(self, mock):
-        self.assertEqual(database.get_data_dir(), os.path.expanduser('~/data'))
+        self.assertEqual(database.data_dir(), os.path.expanduser('~/data'))
+
+    def test_datadir_default(self):
+        self.assertEqual(database.data_dir(), '.')
 
 
 class TestProviderDetect(SafeEnvironmentTestCase):

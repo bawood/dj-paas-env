@@ -1,4 +1,4 @@
-__all__ = ('config', 'parse', 'ENGINES', 'get_data_dir')
+__all__ = ('config', 'parse', 'ENGINES', 'data_dir')
 
 import os
 import re
@@ -51,7 +51,12 @@ def parse(url, engine=None):
         'PORT': url.port or ''
     }
 
-def get_data_dir(default='.'):
+
+def sqlite_dev():
+    return 'sqlite:///' + os.path.join(data_dir(), 'database.sqlite3')
+
+
+def data_dir(default='.'):
     """
     Return persistent data directory or ``default`` if not found
     Warning: Do not use this directory to store sqlite databases in producction
