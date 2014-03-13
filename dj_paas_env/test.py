@@ -261,7 +261,7 @@ class TestDatabaseDatadir(SafeEnvironmentTestCase):
         self.assertEqual(database.data_dir(), os.path.expanduser('~/data'))
 
     def test_datadir_default(self):
-        self.assertEqual(database.data_dir(), '.')
+        self.assertEqual(database.data_dir(), 'data')
 
 
 class TestProviderDetect(SafeEnvironmentTestCase):
