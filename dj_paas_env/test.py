@@ -12,7 +12,7 @@ try:
 except ImportError:
     from mock import patch
 
-from dj_paas_env import database, provider
+from dj_paas_env import database, provider, static
 
 
 class TestDatabaseParse(unittest.TestCase):
@@ -264,9 +264,28 @@ class TestDatabaseDatadir(SafeEnvironmentTestCase):
         self.assertEqual(database.data_dir(), 'data')
 
 
-class TestProviderDetect(SafeEnvironmentTestCase):
+class TestStaticRoot(SafeEnvironmentTestCase):
 
-    clean_vars = ['DYNO', re.compile(r'OPENSHIFT_.+')]
+    @patch('dj_paas_env.provider.detect', return_value=provider.HEROKU)
+    def test_root_heroku(self, mock):
+        self.assertEqual(static.root(), 'staticfiles')
+
+    @patch('dj_paas_env.provider.detect', return_value=provider.OPENSHIFT)
+    def test_root_openshift(self, mock):
+        self.assertEqual(static.root(), 'wsgi/static')
+
+    @patch('dj_paas_env.provider.detect', return_value=provider.GONDOR)
+    def test_root_gondor(self, mock):
+        os.environ['GONDOR_DATA_DIR'] = 'zxcvb'
+        self.assertEqual(static.root(), os.path.join('zxcvb', 'site_media',
+                                                     'static'))
+
+    @patch('dj_paas_env.provider.detect', return_value=provider.DOTCLOUD)
+    def test_root_dotcloud(self, mock):
+        self.assertEqual(static.root(), '/home/dotcloud/volatile/static/')
+
+
+class TestProviderDetect(SafeEnvironmentTestCase):
 
     def test_detect_heroku(self):
         os.environ['DYNO'] = ''
