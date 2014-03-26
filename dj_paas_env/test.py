@@ -24,7 +24,7 @@ class TestDatabaseParse(unittest.TestCase):
         parsed_expect = {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'dcj1n178peejs9',
-            'USERNAME': 'hleulxsesqdumt',
+            'USER': 'hleulxsesqdumt',
             'PASSWORD': 'vULaPXW9n4eGKK64d2_ujxLqGG',
             'HOST': 'ec2-107-20-214-225.compute-1.amazonaws.com',
             'PORT': 5432
@@ -37,7 +37,7 @@ class TestDatabaseParse(unittest.TestCase):
         parsed_expect = {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': '',
-            'USERNAME': 'ad_mingpxxnxy',
+            'USER': 'ad_mingpxxnxy',
             'PASSWORD': 'ca5Dp1_yFet3',
             'HOST': '127.11.207.130',
             'PORT': 5432
@@ -50,7 +50,7 @@ class TestDatabaseParse(unittest.TestCase):
         parsed_expect = {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': '',
-            'USERNAME': 'root',
+            'USER': 'root',
             'PASSWORD': 'cR4zYr0o7pa5Sw0rD',
             'HOST': 'abcd1234.dotcloud.com',
             'PORT': 1337
@@ -63,7 +63,7 @@ class TestDatabaseParse(unittest.TestCase):
         parsed_expect = {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'heroku_ec5fddc308fbe9e',
-            'USERNAME': 'b819c071b951a9',
+            'USER': 'b819c071b951a9',
             'PASSWORD': '9ca7bbbb',
             'HOST': 'us-cdbr-east-05.cleardb.net',
             'PORT': ''
@@ -76,7 +76,7 @@ class TestDatabaseParse(unittest.TestCase):
         self.assertDictEqual(parsed, {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': '',
-            'USERNAME': 'admingJmQ37x',
+            'USER': 'admingJmQ37x',
             'PASSWORD': 'MDQ22l6xf1P-',
             'HOST': '127.11.207.130',
             'PORT': 3306
@@ -88,7 +88,7 @@ class TestDatabaseParse(unittest.TestCase):
         self.assertDictEqual(parsed, {
             'ENGINE': 'X',
             'NAME': 'name',
-            'USERNAME': 'user',
+            'USER': 'user',
             'PASSWORD': 'pass',
             'HOST': 'host',
             'PORT': 123
@@ -100,7 +100,7 @@ class TestDatabaseParse(unittest.TestCase):
         self.assertDictEqual(parsed, {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': 'directory/file.db',
-            'USERNAME': '',
+            'USER': '',
             'PASSWORD': '',
             'HOST': None,
             'PORT': '',
@@ -150,7 +150,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
-            'USERNAME': 'asdf',
+            'USER': 'asdf',
             'PASSWORD': 'fdsa',
             'HOST': 'qwer',
             'PORT': 12345
@@ -162,7 +162,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
-            'USERNAME': 'asdf',
+            'USER': 'asdf',
             'PASSWORD': 'fdsa',
             'HOST': 'qwer',
             'PORT': 12345
@@ -174,7 +174,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'rewq',
-            'USERNAME': 'asdf',
+            'USER': 'asdf',
             'PASSWORD': 'fdsa',
             'HOST': 'qwer',
             'PORT': 12345
@@ -186,7 +186,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
-            'USERNAME': 'asdf',
+            'USER': 'asdf',
             'PASSWORD': 'fdsa',
             'HOST': 'qwer',
             'PORT': 12345
@@ -198,7 +198,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'rewq',
-            'USERNAME': 'asdf',
+            'USER': 'asdf',
             'PASSWORD': 'fdsa',
             'HOST': 'qwer',
             'PORT': 12345
@@ -210,7 +210,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'rewq',
-            'USERNAME': 'asdf',
+            'USER': 'asdf',
             'PASSWORD': 'fdsa',
             'HOST': 'qwer',
             'PORT': 12345

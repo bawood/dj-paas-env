@@ -45,7 +45,7 @@ def parse(url, engine=None):
     return {
         'ENGINE': engine if engine else ENGINES[url.scheme],
         'NAME': url.path[1:].split('?', 2)[0],
-        'USERNAME': url.username or '',
+        'USER': url.username or '',
         'PASSWORD': url.password or '',
         'HOST': url.hostname,
         'PORT': url.port or ''
