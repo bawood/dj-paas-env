@@ -21,7 +21,7 @@ setup(
     name='dj-paas-env',
     description='Helper methods to configure Django database and static files in a PAAS environment.',
     long_description=read('README.rst'),
-    version='0.5.1',
+    version='0.6',
     packages=['dj_paas_env'],
     url='https://github.com/pbacterio/dj-paas-env',
     license='MIT',

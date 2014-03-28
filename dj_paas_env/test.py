@@ -284,6 +284,10 @@ class TestStaticRoot(SafeEnvironmentTestCase):
     def test_root_dotcloud(self, mock):
         self.assertEqual(static.root(), '/home/dotcloud/volatile/static/')
 
+    @patch('dj_paas_env.provider.detect', return_value=provider.UNKNOWN)
+    def test_root_unknown(self, mock):
+        self.assertEqual(static.root(), 'wsgi/static')
+
 
 class TestProviderDetect(SafeEnvironmentTestCase):
 
