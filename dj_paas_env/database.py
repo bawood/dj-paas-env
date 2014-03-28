@@ -25,14 +25,25 @@ re_keys = list(map(re.compile, re_keys))
 
 
 def config(default=None, engine=None):
-    if provider.detect() == provider.DOTCLOUD:
+    provider_detected = provider.detect()
+    url = None
+    if provider_detected == provider.DOTCLOUD:
         with open('/home/dotcloud/environment.json', 'r') as f:
             os.environ.update(json.load(f))
-    for re_key in re_keys:
-        for key in os.environ:
+    for key in os.environ:
+        for re_key in re_keys:
             if re_key.match(key):
-                return parse(os.environ[key], engine)
-    return parse(default, engine)
+                url = os.environ[key]
+                break
+    if not url:
+        return parse(default, engine)
+    conf = parse(url, engine)
+    if provider_detected == provider.OPENSHIFT:
+        if 'OPENSHIFT_POSTGRESQL_DB_URL' in os.environ:
+            conf['NAME'] = os.environ['PGDATABASE']
+        elif 'OPENSHIFT_MYSQL_DB_URL' in os.environ:
+            conf['NAME'] = os.environ['OPENSHIFT_APP_NAME']
+    return conf
 
 
 def parse(url, engine=None):

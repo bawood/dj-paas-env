@@ -123,7 +123,13 @@ class TestDatabaseParse(unittest.TestCase):
 
 class SafeEnvironmentTestCase(unittest.TestCase):
 
-    clean_vars = database.re_keys + ['DYNO', re.compile(r'OPENSHIFT_.+'), re.compile(r'GONDOR_.+')]
+    clean_vars = database.re_keys + [
+        'DYNO',
+        re.compile(r'OPENSHIFT_.+'),
+        re.compile(r'GONDOR_.+'),
+        'OPENSHIFT_APP_NAME',
+        'PGDATABASE'
+    ]
 
     def setUp(self):
         self.env_copy = os.environ.copy()
@@ -181,7 +187,8 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
         })
 
     def test_config_openshift_postgres(self):
-        os.environ['OPENSHIFT_POSTGRESQL_DB_URL'] = 'postgresql://asdf:fdsa@qwer:12345/rewq'
+        os.environ['OPENSHIFT_POSTGRESQL_DB_URL'] = 'postgresql://asdf:fdsa@qwer:12345'
+        os.environ['PGDATABASE'] = 'rewq'
         conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -194,6 +201,7 @@ class TestDatabaseConfig(SafeEnvironmentTestCase):
 
     def test_config_openshift_mysql(self):
         os.environ['OPENSHIFT_MYSQL_DB_URL'] = 'mysql://asdf:fdsa@qwer:12345/rewq'
+        os.environ['OPENSHIFT_APP_NAME'] = 'rewq'
         conf = database.config()
         self.assertDictEqual(conf, {
             'ENGINE': 'django.db.backends.mysql',
